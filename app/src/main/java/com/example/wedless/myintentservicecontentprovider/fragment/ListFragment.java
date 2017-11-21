@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -41,6 +42,8 @@ public class ListFragment extends Fragment implements View.OnClickListener {
     private MyIntentService.MyBinder myBinder;
     private MyServiceConnection conn;
     private Button btn_add;
+    private Button btn_select;
+    private MyAdapter myAdapter;
     private Intent intent;
     private ArrayList<Goods> lists=new ArrayList<>();
     public ListFragment() {
@@ -69,6 +72,8 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         listshow=view.findViewById(R.id.list_show);
         btn_add=view.findViewById(R.id.btn_add);
         btn_add.setOnClickListener(this);
+        btn_select=view.findViewById(R.id.btn_select);
+        btn_select.setOnClickListener(this);
         intent=new Intent(getActivity(), MyIntentService.class);
         intent.setAction(MyIntentService.ACTION_QUERY);
         getActivity().startService(intent);
@@ -78,10 +83,19 @@ public class ListFragment extends Fragment implements View.OnClickListener {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                MyAdapter myAdapter=new MyAdapter(getActivity(),R.layout.list_view_item,lists);
+                myAdapter=new MyAdapter(getActivity(),R.layout.list_view_item,lists);
                 listshow.setAdapter(myAdapter);
             }
-        },1000);
+        },500);
+        listshow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                fm=getActivity().getSupportFragmentManager();
+                trans=fm.beginTransaction();
+                trans.replace(R.id.main_id,MessageFragment.newInstance(lists.get(i).getId()));
+                trans.commit();
+            }
+        });
         return view;
     }
 
@@ -92,6 +106,23 @@ public class ListFragment extends Fragment implements View.OnClickListener {
                 fm=getActivity().getSupportFragmentManager();
                 trans=fm.beginTransaction();
                 trans.replace(R.id.main_id,new AddFragment()).commit();
+                break;
+            case R.id.btn_select:
+                lists.clear();
+                intent=new Intent(getActivity(), MyIntentService.class);
+                intent.setAction(MyIntentService.ACTION_QUERY);
+                getActivity().startService(intent);
+                conn=new MyServiceConnection();
+                getActivity().bindService(intent,conn, Context.BIND_AUTO_CREATE);
+                Handler handler=new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        myAdapter=new MyAdapter(getActivity(),R.layout.list_view_item,lists);
+                        listshow.setAdapter(myAdapter);
+                    }
+                },500);
+
                 break;
         }
     }

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -19,6 +20,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.example.wedless.myintentservicecontentprovider.R;
+import com.example.wedless.myintentservicecontentprovider.adapter.MyAdapter;
 import com.example.wedless.myintentservicecontentprovider.bean.Goods;
 import com.example.wedless.myintentservicecontentprovider.service.MyIntentService;
 import com.example.wedless.myintentservicecontentprovider.sqlite.MySqliteOpenHalper;
@@ -53,11 +55,10 @@ public class AddFragment extends Fragment implements View.OnClickListener {
         view=inflater.inflate(R.layout.fragment_add,null);
         btn_add=view.findViewById(R.id.btn_add);
         btn_add.setOnClickListener(this);
-        intent=new Intent(getActivity(), MyIntentService.class);
-        intent.setAction(MyIntentService.ACTION_QUERY);
-        getActivity().startService(intent);
-        conn=new MyServiceConnection();
-        getActivity().bindService(intent,conn, Context.BIND_AUTO_CREATE);
+        add_name=view.findViewById(R.id.add_name);
+        add_price=view.findViewById(R.id.add_price);
+        //conn=new MyServiceConnection();
+        //getActivity().bindService(intent,conn, Context.BIND_AUTO_CREATE);
         return view;
     }
     public class MyServiceConnection implements ServiceConnection {
@@ -76,7 +77,20 @@ public class AddFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btn_add:
-
+                intent=new Intent(getActivity(), MyIntentService.class);
+                intent.putExtra("name",add_name.getText().toString());
+                intent.putExtra("price",add_price.getText().toString());
+                intent.setAction(MyIntentService.ACTION_ADD);
+                getActivity().startService(intent);
+                Handler handler=new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        fm=getActivity().getSupportFragmentManager();
+                        trans=fm.beginTransaction();
+                        trans.replace(R.id.main_id,new ListFragment()).commit();
+                    }
+                },500);
                 break;
         }
     }

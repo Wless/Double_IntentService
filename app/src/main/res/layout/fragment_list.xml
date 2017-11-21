@@ -22,5 +22,11 @@
             android:text="新增"
             android:id="@+id/btn_add"
             />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="刷新"
+            android:id="@+id/btn_select"
+            />
     </LinearLayout>
 </LinearLayout>

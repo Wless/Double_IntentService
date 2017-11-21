@@ -27,6 +27,7 @@ public class MyIntentService extends IntentService {
     // TODO: Rename actions, choose action names that describe tasks that this
     // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
     private User user=new User();
+    private Goods goods=new Goods();
     private ArrayList<Goods> lists=new ArrayList<>();
     private MyBinder mybinder;
     private static final String ACTION_FOO = "com.example.wedless.myintentservicecontentprovider.service.action.FOO";
@@ -34,6 +35,10 @@ public class MyIntentService extends IntentService {
     public static final String ACTION_LOGIN = "com.example.wedless.myintentservicecontentprovider.service.action.LOGIN";
     public static final String ACTION_REGISTER = "com.example.wedless.myintentservicecontentprovider.service.action.REGISTER";
     public static final String ACTION_QUERY = "com.example.wedless.myintentservicecontentprovider.service.action.QUERY";
+    public static final String ACTION_ADD = "com.example.wedless.myintentservicecontentprovider.service.action.ADD";
+    public static final String ACTION_QUERYBYID = "com.example.wedless.myintentservicecontentprovider.service.action.QUERYBYID";
+    public static final String ACTION_DELETE = "com.example.wedless.myintentservicecontentprovider.service.action.DELETE";
+    public static final String ACTION_UPDATE = "com.example.wedless.myintentservicecontentprovider.service.action.UPDATE";
 
 
     // TODO: Rename parameters
@@ -49,6 +54,9 @@ public class MyIntentService extends IntentService {
         }
         public ArrayList<Goods> getLists(){
             return lists;
+        }
+        public Goods getGoods(){
+            return goods;
         }
     }
 
@@ -121,6 +129,24 @@ public class MyIntentService extends IntentService {
                     g.setPrice(cursor.getString(cursor.getColumnIndex("price")));
                     lists.add(g);
                 }
+            }else if(ACTION_ADD.equals(action)){
+                ContentValues value=new  ContentValues();
+                value.put("name",intent.getStringExtra("name"));
+                value.put("price",intent.getStringExtra("price"));
+                getContentResolver().insert(Uri.parse("content://com.bw.example.intent.demo/goods"),value);
+            }else if(ACTION_QUERYBYID.equals(action)){
+                Cursor cursor=getContentResolver().query(Uri.parse("content://com.bw.example.intent.demo/goods"),null,"id="+intent.getIntExtra("id",0),null,null);
+                while (cursor.moveToNext()) {
+                    goods.setName(cursor.getString(cursor.getColumnIndex("name")));
+                    goods.setPrice(cursor.getString(cursor.getColumnIndex("price")));
+                }
+            }else if(ACTION_DELETE.equals(action)){
+                getContentResolver().delete(Uri.parse("content://com.bw.example.intent.demo/goods"),"id="+intent.getIntExtra("id",0),null);
+            }else if(ACTION_UPDATE.equals(action)){
+                ContentValues value=new  ContentValues();
+                value.put("name",intent.getStringExtra("name"));
+                value.put("price",intent.getStringExtra("price"));
+                getContentResolver().update(Uri.parse("content://com.bw.example.intent.demo/goods"),value,"id="+intent.getIntExtra("id",0),null);
             }
         }
     }

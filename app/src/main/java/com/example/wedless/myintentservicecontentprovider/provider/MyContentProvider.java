@@ -28,7 +28,7 @@ public class MyContentProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         // Implement this to handle requests to delete one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+       return db.delete("goods",selection,null);
     }
 
     @Override
@@ -41,7 +41,14 @@ public class MyContentProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         // TODO: Implement this to handle requests to insert a new row.
-        db.insert("user",null,values);
+        switch (matcher.match(uri)){
+            case USER_NUM:
+                db.insert("user",null,values);
+                break;
+            case GOODS_NUM:
+                db.insert("goods",null,values);
+                break;
+        }
         return null;
     }
 
@@ -59,10 +66,10 @@ public class MyContentProvider extends ContentProvider {
         // TODO: Implement this to handle query requests from clients.
 
         switch (matcher.match(uri)){
-            case 1:
+            case USER_NUM:
                 cursor= db.query("user",null,selection,null,null,null,null);
             break;
-            case 2:
+            case GOODS_NUM:
                 cursor= db.query("goods",null,selection,null,null,null,null);
             break;
         }
@@ -72,7 +79,6 @@ public class MyContentProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
-        // TODO: Implement this to handle requests to update one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        return db.update("goods",values,selection,null);
     }
 }
